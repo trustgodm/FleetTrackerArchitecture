@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Tracker - PWA & Service Worker</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .diagram-container {
+            width: 100%;
+            height: auto;
+            margin: 20px 0;
+        }
+        .description {
+            background-color: #f8f9fa;
+            border-left: 4px solid #6f42c1;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .description h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .pwa-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+        }
+        .feature-item h4 {
+            color: #495057;
+            margin-top: 0;
+        }
+        .sw-lifecycle {
+            border-left: 4px solid #17a2b8;
+        }
+        .cache-strategy {
+            border-left: 4px solid #28a745;
+        }
+        .push-notifications {
+            border-left: 4px solid #ffc107;
+        }
+        .pwa-manifest {
+            border-left: 4px solid #6f42c1;
+        }
+        .feature-step {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        .install-step {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .cache-step {
+            background-color: #cce5ff;
+            border: 1px solid #99d6ff;
+        }
+        .sync-step {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+        .push-step {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 PWA & Service Worker</h1>
+        <p class="subtitle">Progressive Web App functionality with Service Worker orchestration and offline capabilities</p>
+        
+        <div class="description">
+            <h3>PWA & Service Worker Overview</h3>
+            <p>This flowchart shows how the Fleet Tracker implements Progressive Web App functionality through Service Workers. It demonstrates the complete lifecycle from app installation to background sync, including cache management, push notifications, and offline functionality that provides a native app experience.</p>
+        </div>
+
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart TD
+    START[User Opens App] --> SW_CHECK{Service Worker<br/>Supported?}
+    SW_CHECK -->|No| FALLBACK[Fallback to<br/>Regular Web App]
+    SW_CHECK -->|Yes| SW_REGISTER[Register Service Worker<br/>sw.js]
+    
+    SW_REGISTER --> SW_INSTALL[Service Worker<br/>Installation]
+    SW_INSTALL --> CACHE_RESOURCES[Cache Static Resources<br/>HTML, CSS, JS, Icons]
+    CACHE_RESOURCES --> SW_ACTIVATE[Service Worker<br/>Activation]
+    
+    SW_ACTIVATE --> INSTALL_PROMPT{Show Install<br/>Prompt?}
+    INSTALL_PROMPT -->|Yes| PWA_INSTALL[Show PWA Install<br/>Banner/Prompt]
+    INSTALL_PROMPT -->|No| APP_READY[App Ready for Use]
+    
+    PWA_INSTALL --> USER_CHOICE{User Installs<br/>PWA?}
+    USER_CHOICE -->|Yes| HOME_SCREEN[Add to Home Screen<br/>Native App Experience]
+    USER_CHOICE -->|No| APP_READY
+    
+    %% Network Request Interception
+    APP_READY --> USER_REQUEST[User Makes Request]
+    USER_REQUEST --> SW_INTERCEPT[Service Worker<br/>Intercepts Request]
+    
+    SW_INTERCEPT --> REQUEST_TYPE{Request Type?}
+    
+    %% API Requests
+    REQUEST_TYPE -->|API Call| NETWORK_FIRST[Network First<br/>Strategy]
+    NETWORK_FIRST --> ONLINE_CHECK{Network<br/>Available?}
+    ONLINE_CHECK -->|Yes| FETCH_API[Fetch from Network]
+    ONLINE_CHECK -->|No| CACHE_API[Return Cached<br/>API Response]
+    
+    FETCH_API --> API_SUCCESS{Request<br/>Successful?}
+    API_SUCCESS -->|Yes| UPDATE_CACHE[Update Cache<br/>with Fresh Data]
+    API_SUCCESS -->|No| CACHE_FALLBACK[Fallback to<br/>Cached Data]
+    
+    %% Static Resources
+    REQUEST_TYPE -->|Static File| CACHE_FIRST[Cache First<br/>Strategy]
+    CACHE_FIRST --> CACHE_CHECK{In Cache?}
+    CACHE_CHECK -->|Yes| SERVE_CACHE[Serve from Cache]
+    CACHE_CHECK -->|No| FETCH_NETWORK[Fetch from Network<br/>& Cache]
+    
+    %% Push Notifications
+    subgraph PUSH_SYSTEM["🔔 Push Notification System"]
+        PUSH_EVENT[Push Event Received] --> PARSE_PUSH[Parse Notification<br/>Payload]
+        PARSE_PUSH --> SHOW_NOTIFICATION[Show Notification<br/>with Actions]
+        
+        SHOW_NOTIFICATION --> NOTIF_CLICK{User Interaction?}
+        NOTIF_CLICK -->|Click| FOCUS_APP[Focus App Window<br/>Navigate to Content]
+        NOTIF_CLICK -->|Action| HANDLE_ACTION[Handle Notification<br/>Action Button]
+        NOTIF_CLICK -->|Dismiss| TRACK_DISMISS[Track Dismissal<br/>Analytics]
+    end
+    
+    %% Background Sync
+    subgraph BG_SYNC_SYSTEM["🔄 Background Sync System"]
+        SYNC_EVENT[Background Sync<br/>Event Triggered] --> PROCESS_QUEUE[Process Offline<br/>Operation Queue]
+        PROCESS_QUEUE --> SYNC_API[Sync with Backend<br/>API Calls]
+        SYNC_API --> SYNC_SUCCESS{Sync<br/>Successful?}
+        SYNC_SUCCESS -->|Yes| CLEAR_QUEUE[Clear Synced<br/>Operations]
+        SYNC_SUCCESS -->|No| RETRY_LATER[Schedule Retry<br/>Exponential Backoff]
+    end
+    
+    %% Cache Management
+    subgraph CACHE_MGMT["💾 Cache Management"]
+        CACHE_UPDATE[Cache Update<br/>Needed] --> VERSION_CHECK[Check App<br/>Version]
+        VERSION_CHECK --> NEW_VERSION{New Version<br/>Available?}
+        NEW_VERSION -->|Yes| CLEAR_OLD[Clear Old Cache<br/>Download New Assets]
+        NEW_VERSION -->|No| KEEP_CACHE[Keep Current<br/>Cache]
+        
+        CLEAR_OLD --> UPDATE_READY[New Version Ready<br/>Show Update Prompt]
+        UPDATE_READY --> USER_UPDATE{User Accepts<br/>Update?}
+        USER_UPDATE -->|Yes| RELOAD_APP[Reload App<br/>with New Version]
+        USER_UPDATE -->|No| POSTPONE[Postpone Update<br/>Use Current Version]
+    end
+    
+    %% Offline Functionality
+    subgraph OFFLINE_FEATURES["📴 Offline Functionality"]
+        OFFLINE_DETECT[Network Connection<br/>Lost] --> OFFLINE_MODE[Switch to Offline<br/>Mode]
+        OFFLINE_MODE --> OFFLINE_STORAGE[Use IndexedDB<br/>for Data]
+        OFFLINE_STORAGE --> QUEUE_OPERATIONS[Queue Write<br/>Operations]
+        
+        ONLINE_DETECT[Network Connection<br/>Restored] --> TRIGGER_SYNC[Trigger Background<br/>Sync]
+        TRIGGER_SYNC --> BG_SYNC_SYSTEM
+    end
+    
+    %% PWA Features
+    subgraph PWA_FEATURES["📱 PWA Features"]
+        MANIFEST[Web App Manifest<br/>Configuration] --> APP_METADATA[App Name, Icons<br/>Theme Colors]
+        APP_METADATA --> DISPLAY_MODE[Standalone Display<br/>No Browser UI]
+        DISPLAY_MODE --> NATIVE_FEEL[Native App<br/>Experience]
+        
+        NATIVE_FEEL --> SPLASH_SCREEN[Custom Splash<br/>Screen]
+        SPLASH_SCREEN --> STATUS_BAR[Themed Status<br/>Bar]
+    end
+    
+    %% Integration Points
+    SW_ACTIVATE -.-> PUSH_SYSTEM
+    APP_READY -.-> BG_SYNC_SYSTEM
+    SW_INTERCEPT -.-> OFFLINE_FEATURES
+    HOME_SCREEN -.-> PWA_FEATURES
+    
+    %% Return paths
+    UPDATE_CACHE --> USER_REQUEST
+    CACHE_FALLBACK --> USER_REQUEST
+    SERVE_CACHE --> USER_REQUEST
+    FETCH_NETWORK --> USER_REQUEST
+    FOCUS_APP --> USER_REQUEST
+    CLEAR_QUEUE --> USER_REQUEST
+            </div>
+        </div>
+
+        <div class="pwa-features">
+            <div class="feature-item sw-lifecycle">
+                <h4>🔄 Service Worker Lifecycle</h4>
+                <p><strong>Registration & Installation</strong>:</p>
+                <div class="feature-step install-step">Register sw.js on app load</div>
+                <div class="feature-step install-step">Install event caches static assets</div>
+                <div class="feature-step install-step">Activate event cleans old caches</div>
+                <div class="feature-step install-step">Ready to intercept requests</div>
+                
+                <p><strong>Update Handling</strong>:</p>
+                <div class="feature-step">Detect new SW version</div>
+                <div class="feature-step">Show update prompt to user</div>
+                <div class="feature-step">Skip waiting and reload</div>
+            </div>
+            
+            <div class="feature-item cache-strategy">
+                <h4>💾 Cache Strategies</h4>
+                <p><strong>Cache-First (Static Assets)</strong>:</p>
+                <div class="feature-step cache-step">Check cache first</div>
+                <div class="feature-step cache-step">Serve from cache if available</div>
+                <div class="feature-step cache-step">Fetch from network as fallback</div>
+                <div class="feature-step cache-step">Cache new assets</div>
+                
+                <p><strong>Network-First (API Calls)</strong>:</p>
+                <div class="feature-step cache-step">Try network request first</div>
+                <div class="feature-step cache-step">Update cache on success</div>
+                <div class="feature-step cache-step">Fallback to cache on failure</div>
+            </div>
+            
+            <div class="feature-item push-notifications">
+                <h4>🔔 Push Notifications</h4>
+                <p><strong>Push Event Handling</strong>:</p>
+                <div class="feature-step push-step">Receive push event in SW</div>
+                <div class="feature-step push-step">Parse notification payload</div>
+                <div class="feature-step push-step">Show notification with actions</div>
+                <div class="feature-step push-step">Handle user interactions</div>
+                
+                <p><strong>Notification Actions</strong>:</p>
+                <div class="feature-step">Click: Focus app window</div>
+                <div class="feature-step">Action buttons: Handle specific actions</div>
+                <div class="feature-step">Track engagement analytics</div>
+            </div>
+            
+            <div class="feature-item sw-lifecycle">
+                <h4>🔄 Background Sync</h4>
+                <p><strong>Sync Registration</strong>:</p>
+                <div class="feature-step sync-step">Register sync on offline operations</div>
+                <div class="feature-step sync-step">Queue operations in IndexedDB</div>
+                <div class="feature-step sync-step">Trigger sync when online</div>
+                <div class="feature-step sync-step">Process queue with retry logic</div>
+                
+                <p><strong>Conflict Resolution</strong>:</p>
+                <div class="feature-step">Server data takes precedence</div>
+                <div class="feature-step">Merge local changes appropriately</div>
+                <div class="feature-step">Notify user of conflicts</div>
+            </div>
+            
+            <div class="feature-item pwa-manifest">
+                <h4>📱 PWA Installation</h4>
+                <p><strong>Web App Manifest</strong>:</p>
+                <div class="feature-step install-step">App name and description</div>
+                <div class="feature-step install-step">Icons for all platforms</div>
+                <div class="feature-step install-step">Theme and background colors</div>
+                <div class="feature-step install-step">Standalone display mode</div>
+                
+                <p><strong>Installation Flow</strong>:</p>
+                <div class="feature-step">Show install prompt</div>
+                <div class="feature-step">Add to home screen</div>
+                <div class="feature-step">Launch as native app</div>
+                <div class="feature-step">Full screen experience</div>
+            </div>
+            
+            <div class="feature-item cache-strategy">
+                <h4>📴 Offline Functionality</h4>
+                <p><strong>Offline Detection</strong>:</p>
+                <div class="feature-step">Monitor navigator.onLine</div>
+                <div class="feature-step">Test actual connectivity</div>
+                <div class="feature-step">Switch to offline mode</div>
+                <div class="feature-step">Use IndexedDB for data</div>
+                
+                <p><strong>Offline Operations</strong>:</p>
+                <div class="feature-step">Queue write operations</div>
+                <div class="feature-step">Serve cached read data</div>
+                <div class="feature-step">Show offline indicators</div>
+                <div class="feature-step">Sync when connection restored</div>
+            </div>
+        </div>
+
+        <div class="description">
+            <h3>🎯 PWA Excellence Benefits</h3>
+            <ul>
+                <li><strong>📱 Native Experience</strong>: Full-screen app with custom splash screen and no browser UI</li>
+                <li><strong>⚡ Instant Loading</strong>: Cached assets serve immediately, even on slow networks</li>
+                <li><strong>📴 Works Offline</strong>: Complete functionality without internet connection</li>
+                <li><strong>🔔 Push Notifications</strong>: Real-time notifications even when app is closed</li>
+                <li><strong>🔄 Background Sync</strong>: Automatic data synchronization when connection returns</li>
+                <li><strong>🏠 Home Screen Install</strong>: One-tap installation on all platforms</li>
+                <li><strong>🔄 Auto Updates</strong>: Seamless app updates with user control</li>
+                <li><strong>🛡️ Reliable Performance</strong>: Works consistently across different network conditions</li>
+                <li><strong>🌐 Universal Compatibility</strong>: Runs on Android, iOS, desktop, and any modern browser</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html> 

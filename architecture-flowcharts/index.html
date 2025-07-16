@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Tracker - Architecture Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+        
+        .header p {
+            font-size: 1.3em;
+            color: #6c757d;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-light));
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .card h3 {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .card p {
+            color: #6c757d;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 24px;
+            background: rgba(var(--accent-rgb), 0.1);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .card-link:hover {
+            background: rgba(var(--accent-rgb), 0.2);
+            transform: translateX(5px);
+        }
+        
+        .card-link::after {
+            content: "→";
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+        
+        .card-link:hover::after {
+            transform: translateX(3px);
+        }
+        
+        /* Card-specific accent colors */
+        .card:nth-child(1) {
+            --accent-color: #3498db;
+            --accent-light: #74b9ff;
+            --accent-rgb: 52, 152, 219;
+        }
+        
+        .card:nth-child(2) {
+            --accent-color: #f39c12;
+            --accent-light: #fdcb6e;
+            --accent-rgb: 243, 156, 18;
+        }
+        
+        .card:nth-child(3) {
+            --accent-color: #10b981;
+            --accent-light: #6ee7b7;
+            --accent-rgb: 16, 185, 129;
+        }
+        
+        .card:nth-child(4) {
+            --accent-color: #8b5cf6;
+            --accent-light: #c4b5fd;
+            --accent-rgb: 139, 92, 246;
+        }
+        
+        .card:nth-child(5) {
+            --accent-color: #ef4444;
+            --accent-light: #fca5a5;
+            --accent-rgb: 239, 68, 68;
+        }
+        
+        .info-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .info-section h3 {
+            color: #2c3e50;
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        
+        .info-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-item h4 {
+            color: #3498db;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .info-item ul {
+            color: #6c757d;
+            padding-left: 20px;
+        }
+        
+        .info-item li {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fff3cd 0%, #fef3c7 100%);
+            border: 1px solid #fbbf24;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .highlight h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .highlight p {
+            color: #92400e;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .header p {
+                font-size: 1.1em;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Fleet Tracker Architecture</h1>
+            <p>Comprehensive system architecture documentation for the Fleet Tracker Progressive Web Application</p>
+        </div>
+        
+        <div class="cards-grid">
+            <div class="card">
+                <span class="card-icon">🏗️</span>
+                <h3>Overall System Architecture</h3>
+                <p>Complete overview of all system components, from React UI to backend services, showing how the Progressive Web App maintains offline-first capabilities.</p>
+                <a href="01-overall-system-architecture.html" class="card-link">View Architecture</a>
+            </div>
+            
+            <div class="card">
+                <span class="card-icon">🔄</span>
+                <h3>API Routing System</h3>
+                <p>Smart routing mechanism that automatically switches between online and offline APIs based on network availability, ensuring seamless user experience.</p>
+                <a href="02-api-routing-system.html" class="card-link">View API Router</a>
+            </div>
+            
+            <div class="card">
+                <span class="card-icon">🚛</span>
+                <h3>Vehicle Sync System</h3>
+                <p>Efficient vehicle data synchronization without status management. All vehicles are always available, simplifying the sync process and improving performance.</p>
+                <a href="03-vehicle-sync-system.html" class="card-link">View Vehicle Sync</a>
+            </div>
+            
+            <div class="card">
+                <span class="card-icon">🧭</span>
+                <h3>Trip Management Flow</h3>
+                <p>Complete user journey from login to trip completion, including offline trip creation, GPS tracking, and synchronization when back online.</p>
+                <a href="04-trip-management-flow.html" class="card-link">View Trip Flow</a>
+            </div>
+            
+            <div class="card">
+                <span class="card-icon">📱</span>
+                <h3>PWA & Service Worker</h3>
+                <p>Progressive Web App functionality including background sync, push notifications, offline caching, and home screen installation capabilities.</p>
+                <a href="05-pwa-service-worker.html" class="card-link">View PWA System</a>
+            </div>
+            
+            <div class="card">
+                <span class="card-icon">🚗</span>
+                <h3>Automatic Vehicle Caching</h3>
+                <p>Proactive vehicle data caching system that automatically refreshes all vehicle information when users connect to the internet, ensuring fresh offline data.</p>
+                <a href="06-automatic-vehicle-caching.html" class="card-link">View Auto Cache</a>
+            </div>
+        </div>
+        
+        <div class="highlight">
+            <h4>🚨 Important System Update</h4>
+            <p><strong>Vehicle Status Management Removed:</strong> The system has been simplified by removing vehicle status tracking. All vehicles are now always available, eliminating the complexity of status synchronization and conflict resolution. This change improves performance and reduces system complexity while maintaining full functionality.</p>
+        </div>
+        
+        <div class="info-section">
+            <h3>📋 Architecture Highlights</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <h4>🎯 Offline-First Design</h4>
+                    <ul>
+                        <li>Full functionality without network</li>
+                        <li>IndexedDB for persistent storage</li>
+                        <li>Smart sync when online</li>
+                        <li>Automatic conflict resolution</li>
+                    </ul>
+                </div>
+                
+                <div class="info-item">
+                    <h4>🔄 Smart API Routing</h4>
+                    <ul>
+                        <li>Network-aware request routing</li>
+                        <li>Transparent online/offline switching</li>
+                        <li>Automatic retry mechanisms</li>
+                        <li>Graceful degradation</li>
+                    </ul>
+                </div>
+                
+                <div class="info-item">
+                    <h4>📱 Progressive Web App</h4>
+                    <ul>
+                        <li>Home screen installable</li>
+                        <li>Background synchronization</li>
+                        <li>Push notifications</li>
+                        <li>Service worker powered</li>
+                    </ul>
+                </div>
+                
+                <div class="info-item">
+                    <h4>⚡ Performance Optimized</h4>
+                    <ul>
+                        <li>TTL-based caching (no status tracking)</li>
+                        <li>Incremental data updates</li>
+                        <li>Background refresh</li>
+                        <li>Memory efficient storage</li>
+                    </ul>
+                </div>
+                
+                <div class="info-item">
+                    <h4>🔔 Real-time Features</h4>
+                    <ul>
+                        <li>Push notification system</li>
+                        <li>Background sync queue</li>
+                        <li>Live trip tracking</li>
+                        <li>Instant UI updates</li>
+                    </ul>
+                </div>
+                
+                <div class="info-item">
+                    <h4>🛡️ Robust Error Handling</h4>
+                    <ul>
+                        <li>Network failure recovery</li>
+                        <li>Data validation layers</li>
+                        <li>User-friendly error messages</li>
+                        <li>Automatic retry logic</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

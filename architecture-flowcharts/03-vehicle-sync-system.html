@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Tracker - Vehicle Sync System</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+        .diagram-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+        .description {
+            background: #f8f9fa;
+            border-left: 5px solid #10b981;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .description h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.4em;
+        }
+        .description p {
+            color: #5a6c7d;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .sync-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        .feature {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e1e8ed;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .feature h4 {
+            color: #10b981;
+            margin-top: 0;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        .feature ul {
+            color: #5a6c7d;
+            padding-left: 20px;
+        }
+        .feature li {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 24px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .back-link:hover {
+            background: rgba(52, 152, 219, 0.2);
+            transform: translateX(-5px);
+        }
+        .back-link::before {
+            content: "←";
+            font-size: 1.2em;
+        }
+        .important-note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .important-note h4 {
+            color: #856404;
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        .important-note p {
+            color: #856404;
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">Back to Architecture Hub</a>
+        
+        <h1>Vehicle Sync System</h1>
+        <p class="subtitle">Efficient vehicle data synchronization without status management</p>
+        
+        <div class="diagram-container">
+            <div class="mermaid">
+graph TB
+    %% User Actions
+    subgraph "👤 User Interactions"
+        VS[Vehicle Search]
+        VV[Vehicle View]
+        TS[Trip Start]
+    end
+
+    %% Sync Manager
+    subgraph "🔄 Vehicle Sync Manager"
+        VSM[VehicleSyncManager]
+        SC[Sync Coordinator]
+        CF[Cache Freshness Check]
+    end
+
+    %% API Router
+    subgraph "🌐 API Routing"
+        AR[ApiRouter]
+        NM[NetworkManager]
+        OA[OnlineApi]
+        OFA[OfflineOnlyApi]
+    end
+
+    %% Storage Systems
+    subgraph "💾 Storage Layer"
+        OS[OfflineStorage]
+        IDB[(IndexedDB)]
+        CM[Cache Metadata]
+    end
+
+    %% Backend Systems
+    subgraph "🖥️ Backend"
+        API[Vehicles API]
+        DB[(PostgreSQL)]
+        VD[Vehicle Data]
+    end
+
+    %% Decision Points
+    D1{Network<br/>Available?}
+    D2{Cache<br/>Fresh?}
+    D3{Has Local<br/>Cache?}
+
+    %% Flow Connections
+    VS --> VSM
+    VV --> VSM
+    TS --> VSM
+
+    VSM --> CF
+    CF --> D2
+    
+    D2 -->|Yes| OS
+    D2 -->|No| SC
+    
+    SC --> AR
+    AR --> NM
+    NM --> D1
+
+    D1 -->|Yes| OA
+    D1 -->|No| D3
+
+    OA --> API
+    API --> VD
+    VD --> DB
+
+    D3 -->|Yes| OFA
+    D3 -->|No| VV
+
+    OFA --> OS
+    OS --> IDB
+    OS --> CM
+
+    %% Data Returns
+    API -.->|Fresh Data| VSM
+    OS -.->|Cached Data| VSM
+    VSM -.->|Vehicle List| VS
+    VSM -.->|Vehicle Details| VV
+
+    %% Cache Updates
+    API -.->|Update Cache| OS
+    VSM -.->|Mark Fresh| CM
+
+    %% Styling
+    classDef userLayer fill:#e8f4fd,stroke:#3498db,stroke-width:2px
+    classDef syncLayer fill:#f0fdf4,stroke:#10b981,stroke-width:2px
+    classDef apiLayer fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    classDef storageLayer fill:#fdf2f8,stroke:#ec4899,stroke-width:2px
+    classDef backendLayer fill:#f5f3ff,stroke:#8b5cf6,stroke-width:2px
+    classDef decisionNode fill:#fff2f2,stroke:#ef4444,stroke-width:2px
+
+    class VS,VV,TS userLayer
+    class VSM,SC,CF syncLayer
+    class AR,NM,OA,OFA apiLayer
+    class OS,IDB,CM storageLayer
+    class API,DB,VD backendLayer
+    class D1,D2,D3 decisionNode
+            </div>
+        </div>
+
+        <div class="important-note">
+            <h4>🚨 Important Change: Vehicle Status Removed</h4>
+            <p><strong>All vehicles are now always available.</strong> The vehicle status management system has been removed to simplify the architecture. This diagram shows the current state where vehicles are synced for data only (name, plate number, department, etc.) without any status tracking or availability management.</p>
+        </div>
+
+        <div class="description">
+            <h3>🔄 Vehicle Synchronization Strategy</h3>
+            <p>The vehicle sync system provides <strong>efficient data management</strong> for vehicle information without status complexity. The system uses intelligent caching with TTL-based expiration to minimize API calls while keeping data fresh.</p>
+            
+            <div class="sync-features">
+                <div class="feature">
+                    <h4>🎯 Smart Sync Logic</h4>
+                    <ul>
+                        <li><strong>Cache-First:</strong> Always check local cache first</li>
+                        <li><strong>TTL-Based:</strong> 30-minute expiration for vehicle data</li>
+                        <li><strong>Department-Scoped:</strong> Sync only relevant vehicles</li>
+                        <li><strong>Fallback Strategy:</strong> Graceful offline handling</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>💾 Efficient Storage</h4>
+                    <ul>
+                        <li><strong>IndexedDB:</strong> Persistent browser storage</li>
+                        <li><strong>Metadata Tracking:</strong> Cache freshness monitoring</li>
+                        <li><strong>Merge Strategy:</strong> Update existing, add new vehicles</li>
+                        <li><strong>Cleanup Logic:</strong> Remove stale cache entries</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>🔍 Search Optimization</h4>
+                    <ul>
+                        <li><strong>Instant Results:</strong> Search cached data immediately</li>
+                        <li><strong>Background Refresh:</strong> Update cache after search</li>
+                        <li><strong>Multi-Field Search:</strong> Name, plate, department</li>
+                        <li><strong>Fuzzy Matching:</strong> Forgiving search terms</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>🚀 Performance Features</h4>
+                    <ul>
+                        <li><strong>Incremental Updates:</strong> Only fetch changed data</li>
+                        <li><strong>Batch Operations:</strong> Process multiple vehicles</li>
+                        <li><strong>Memory Efficient:</strong> Minimal RAM usage</li>
+                        <li><strong>Network Aware:</strong> Adapt to connection quality</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>📊 Cache Management</h4>
+                    <ul>
+                        <li><strong>TTL-Based Expiry:</strong> 30 minutes for vehicle data</li>
+                        <li><strong>Cache Statistics:</strong> Usage monitoring</li>
+                        <li><strong>Department Filtering:</strong> Scoped data access</li>
+                        <li><strong>Storage Cleanup:</strong> Automatic maintenance</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>🔧 Error Handling</h4>
+                    <ul>
+                        <li><strong>Graceful Degradation:</strong> Fallback to cache</li>
+                        <li><strong>Retry Logic:</strong> Smart retry strategies</li>
+                        <li><strong>Error Logging:</strong> Debug information</li>
+                        <li><strong>User Feedback:</strong> Clear error messages</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                nodeSpacing: 50,
+                rankSpacing: 60,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html> 

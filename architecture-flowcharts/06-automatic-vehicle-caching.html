@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Tracker - Automatic Vehicle Caching System</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+        .diagram-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+        .description {
+            background: #f8f9fa;
+            border-left: 5px solid #10b981;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .description h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.4em;
+        }
+        .description p {
+            color: #5a6c7d;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .cache-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        .feature {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e1e8ed;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .feature h4 {
+            color: #10b981;
+            margin-top: 0;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        .feature ul {
+            color: #5a6c7d;
+            padding-left: 20px;
+        }
+        .feature li {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 24px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .back-link:hover {
+            background: rgba(52, 152, 219, 0.2);
+            transform: translateX(-5px);
+        }
+        .back-link::before {
+            content: "←";
+            font-size: 1.2em;
+        }
+        .phase-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .phase-1 {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .phase-2 {
+            background: #dcfce7;
+            color: #166534;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">Back to Architecture Hub</a>
+        
+        <h1>Automatic Vehicle Caching System</h1>
+        <p class="subtitle">Proactive vehicle data caching for seamless offline experience</p>
+        
+        <div class="diagram-container">
+            <div class="mermaid">
+graph TB
+    %% Network Events
+    subgraph "🌐 Network Events"
+        NC[Network Connected]
+        AV[App Visible]
+        DF[Department Fetch]
+        MF[Manual Force]
+    end
+
+    %% Cache Manager
+    subgraph "🚗 Vehicle Cache Manager"
+        VCM[VehicleCacheManager]
+        CS[Cache Staleness Check]
+        PR[Progress Tracker]
+        EM[Event Manager]
+    end
+
+    %% Network Manager
+    subgraph "📡 Network Manager"
+        NM[NetworkManager]
+        CT[Connectivity Test]
+        NE[Network Events]
+    end
+
+    %% API Router
+    subgraph "🔄 API Router"
+        AR[ApiRouter]
+        CD[Cross-Department Cache]
+        BC[Background Cache]
+    end
+
+    %% Storage Systems
+    subgraph "💾 Storage Layer"
+        OS[OfflineStorage]
+        IDB[(IndexedDB)]
+        CM[Cache Metadata]
+        VMD[Vehicle Metadata]
+    end
+
+    %% Backend Systems
+    subgraph "🖥️ Backend"
+        API[Vehicles API]
+        DA[Departments API]
+        DB[(PostgreSQL)]
+    end
+
+    %% UI Components
+    subgraph "📱 User Interface"
+        CPI[Cache Progress Indicator]
+        VCD[Vehicle Cache Debug]
+        TO[Toast Notifications]
+    end
+
+    %% Decision Points
+    D1{Cache<br/>Stale?}
+    D2{Network<br/>Online?}
+    D3{Already<br/>Caching?}
+    D4{Background<br/>Mode?}
+
+    %% Flow Connections
+    NC --> VCM
+    AV --> VCM
+    DF --> AR
+    MF --> VCM
+
+    VCM --> CS
+    CS --> D1
+    
+    D1 -->|Yes| D2
+    D1 -->|No| VCM
+    
+    D2 -->|Yes| D3
+    D2 -->|No| VCM
+    
+    D3 -->|No| PR
+    D3 -->|Yes| VCM
+    
+    PR --> D4
+    
+    D4 -->|Yes| BC
+    D4 -->|No| VCM
+    
+    BC --> AR
+    AR --> CD
+    
+    CD --> DA
+    DA --> API
+    API --> DB
+    
+    %% Progress Updates
+    PR --> EM
+    EM --> CPI
+    EM --> VCD
+    EM --> TO
+    
+    %% Cache Storage
+    API --> OS
+    OS --> IDB
+    OS --> CM
+    OS --> VMD
+    
+    %% Network Integration
+    NM --> CT
+    CT --> NE
+    NE --> VCM
+    
+    %% Styling
+    classDef networkLayer fill:#e8f4fd,stroke:#3498db,stroke-width:2px
+    classDef cacheLayer fill:#f0fdf4,stroke:#10b981,stroke-width:2px
+    classDef apiLayer fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    classDef storageLayer fill:#fdf2f8,stroke:#ec4899,stroke-width:2px
+    classDef backendLayer fill:#f5f3ff,stroke:#8b5cf6,stroke-width:2px
+    classDef uiLayer fill:#f0f9ff,stroke:#0ea5e9,stroke-width:2px
+    classDef decisionNode fill:#fff2f2,stroke:#ef4444,stroke-width:2px
+
+    class NC,AV,DF,MF networkLayer
+    class VCM,CS,PR,EM cacheLayer
+    class AR,CD,BC apiLayer
+    class OS,IDB,CM,VMD storageLayer
+    class API,DA,DB backendLayer
+    class CPI,VCD,TO uiLayer
+    class D1,D2,D3,D4 decisionNode
+            </div>
+        </div>
+
+        <div class="description">
+            <h3>🚗 Automatic Vehicle Caching Strategy</h3>
+            <p>The automatic vehicle caching system ensures users always have fresh vehicle data available offline. The system proactively refreshes vehicle information whenever users connect to the internet, providing a seamless offline experience with up-to-date data.</p>
+            
+            <div class="cache-features">
+                <div class="feature">
+                    <h4>🎯 Phase 1: Basic Auto-Cache <span class="phase-badge phase-1">Complete</span></h4>
+                    <ul>
+                        <li><strong>Connection-Triggered:</strong> Automatically starts when users connect to internet</li>
+                        <li><strong>Progressive Loading:</strong> Respectful server requests with 1-second delays</li>
+                        <li><strong>Basic Retry Logic:</strong> Handles temporary network failures gracefully</li>
+                        <li><strong>Cache Staleness Detection:</strong> 30-minute threshold for cache freshness</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>🧠 Phase 2: Smart Caching <span class="phase-badge phase-2">Complete</span></h4>
+                    <ul>
+                        <li><strong>Cross-Department Caching:</strong> Caches vehicles for ALL departments</li>
+                        <li><strong>Cache Progress Indicators:</strong> Beautiful UI component showing real-time progress</li>
+                        <li><strong>Background Caching:</strong> When departments are fetched, all vehicles cached automatically</li>
+                        <li><strong>Enhanced Error Handling:</strong> Individual department failures don't stop the process</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>🔄 Trigger Events</h4>
+                    <ul>
+                        <li><strong>Network Connection:</strong> When user connects to internet</li>
+                        <li><strong>App Visibility:</strong> When app becomes visible and online</li>
+                        <li><strong>Department Fetch:</strong> When departments are loaded</li>
+                        <li><strong>Manual Force:</strong> User-initiated refresh</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>📊 Progress Tracking</h4>
+                    <ul>
+                        <li><strong>Real-Time Updates:</strong> Live progress indicators</li>
+                        <li><strong>Department Breakdown:</strong> Shows current department being processed</li>
+                        <li><strong>Vehicle Count:</strong> Total vehicles cached</li>
+                        <li><strong>Error Status:</strong> Clear error reporting with retry options</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>💾 Cache Management</h4>
+                    <ul>
+                        <li><strong>Metadata Tracking:</strong> Cache freshness monitoring</li>
+                        <li><strong>TTL-Based Expiry:</strong> 30-minute expiration for vehicle data</li>
+                        <li><strong>Cross-Department Storage:</strong> All departments cached locally</li>
+                        <li><strong>Automatic Cleanup:</strong> Remove stale cache entries</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>🔧 Performance Optimizations</h4>
+                    <ul>
+                        <li><strong>Progressive Loading:</strong> Department-by-department processing</li>
+                        <li><strong>Background Mode:</strong> Non-blocking cache refresh</li>
+                        <li><strong>Network Efficiency:</strong> Respectful delays between requests</li>
+                        <li><strong>Memory Management:</strong> Efficient IndexedDB operations</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>🎨 User Experience</h4>
+                    <ul>
+                        <li><strong>Progress Indicators:</strong> Visual feedback during cache refresh</li>
+                        <li><strong>Toast Notifications:</strong> Success/error messages</li>
+                        <li><strong>Debug Component:</strong> Development tools for monitoring</li>
+                        <li><strong>Auto-Hide:</strong> Progress indicators disappear after completion</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h4>🛡️ Error Handling</h4>
+                    <ul>
+                        <li><strong>Individual Failures:</strong> Continue with other departments</li>
+                        <li><strong>Retry Logic:</strong> Smart retry strategies</li>
+                        <li><strong>Graceful Degradation:</strong> Fallback to existing cache</li>
+                        <li><strong>User Feedback:</strong> Clear error messages with retry options</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                nodeSpacing: 50,
+                rankSpacing: 60,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html> 
